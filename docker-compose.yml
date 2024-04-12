@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  server:
+    image: expressapi
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./src:/app/src
+      - ./nodemon.json:/home/node/app/nodemon.json
+    ports:
+      - 8000:8000
+    command: npm run dev
