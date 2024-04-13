@@ -1,6 +1,5 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import { ormconfig } from "../../../ormconfig";
-import { error } from "console";
 
 /**
  * The Connection interface. This inteface use type orm to connect DB(Mysql).
