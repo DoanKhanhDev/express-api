@@ -1,16 +1,54 @@
-version: '3.4'
+version: "3"
 
 services:
-  server:
-    image: expressapi
+  node:
     build:
-      context: .
-      dockerfile: ./Dockerfile
-    environment:
-      NODE_ENV: development
-    volumes:
-      - ./src:/app/src
-      - ./nodemon.json:/home/node/app/nodemon.json
+      context: ./.docker/services
+      dockerfile: ./node/Dockerfile
+    working_dir: /var/www/app
     ports:
       - 8000:8000
-    command: npm run dev
+    volumes:
+      - .:/var/www/app
+    command: [/bin/bash, ./.docker/services/node/command.sh]
+    tty: true
+    networks:
+      - node_network
+
+  nginx:
+    build:
+      context: ./.docker/services/
+      dockerfile: ./nginx/build/Dockerfile
+    command: [/bin/bash, .docker/services/nginx/build/command.sh]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./.docker/services/nginx/conf:/etc/nginx/conf.d
+      - .:/var/www/app
+    working_dir: /var/www/app
+    depends_on:
+      - node
+    networks:
+      - node_network
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sanbox
+      MYSQL_USER: sandbox_user
+      MYSQL_PASSWORD: passsword
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - '3306:3306'
+    volumes:
+      - './.docker/services/db/data:/var/lib/mysql'
+      - './.docker/services/db/my.cnf:/etc/mysql/conf.d/my.cnf'
+      - './.docker/services/db/sql:/docker-entrypoint-initdb.d'
+    networks:
+      - node_network
+networks:
+  node_network:

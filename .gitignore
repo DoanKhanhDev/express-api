@@ -132,3 +132,8 @@ dist
 #vscode
 .vscode/
 
+#yarn
+
+#docker
+.docker/services/db/data
+.docker/services/db/sql
