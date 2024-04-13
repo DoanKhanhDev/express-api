@@ -1,3 +1,3 @@
 export interface IRouter {}
 
-export default class router implements IRouter {}
+export default class router implements IRouter {} 
