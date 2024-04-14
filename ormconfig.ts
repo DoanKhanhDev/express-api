@@ -9,7 +9,7 @@ export const ormconfig: DataSourceOptions = {
   database: "sanbox",
   synchronize: true,
   logging: false,
-  entities: ["src/Entity/**/*.ts"],
-  migrations: ["src/Migration/**/*.ts"],
-  subscribers: ["src/Subscriber/**/*.ts"],
+  entities: [__dirname + "/src/modules/Entity/*.entity.ts"],
+  migrations: [__dirname + "/src/modules/Migration/*.migration.ts"],
+  subscribers: [__dirname + "/src/modules/Subscriber/*.subscriber.ts"],
 };

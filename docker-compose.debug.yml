@@ -4,8 +4,8 @@ services:
   expressapi:
     image: expressapi
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ./.docker/services
+      dockerfile: ./node/Dockerfile
     environment:
       NODE_ENV: development
     ports:

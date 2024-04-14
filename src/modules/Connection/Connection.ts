@@ -13,7 +13,7 @@ export interface ConnectionInterface {
   /**
    * Check the connect to mysql.
    */
-  isConnection(): Boolean;
+  isInitialized(): Boolean;
 }
 
 export default new (class Connection implements ConnectionInterface {
@@ -30,14 +30,20 @@ export default new (class Connection implements ConnectionInterface {
   }
 
   public getConnection(): DataSource {
+    if (!this.isInitialized()) {
+      this.doInitialize();
+    }
+    return this.dataSource;
+  }
+
+  public isInitialized(): Boolean {
+    return this.dataSource?.isInitialized ?? false;
+  }
+
+  protected doInitialize(): void {
     this.dataSource
       .initialize()
       .then(() => console.log("Connected"))
       .catch((error) => console.log(error));
-    return this.dataSource;
-  }
-
-  public isConnection(): Boolean {
-    return this.dataSource?.isInitialized ?? false;
   }
 })();

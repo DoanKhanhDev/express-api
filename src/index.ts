@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import express, { Application, Request, Response } from "express";
+import EntityTypeManager from "./modules/Entity/EntityTypeManager";
 import Connection from "./modules/Connection/Connection";
 
 //For env File
@@ -11,12 +12,14 @@ dotenv.config({
 const app: Application = express();
 const port = process.env.PORT || 8000;
 
-const connection = Connection.getConnection();
-
-app.get("/", (req: Request, res: Response) => {
-  res.json({ isConnection: Connection.isConnection() });
+app.get("/", async (req: Request, res: Response) => {
+  const photoStorage = EntityTypeManager.getStorage("photo");
+  const photo = await photoStorage?.find();
+  res.json({
+    entity_photo: photo,
+    isConnected: Connection.isInitialized(),
+  });
 });
-
 
 app.listen(port, () => {
   console.log(`Server is Fire at http://localhost:${port}`);
