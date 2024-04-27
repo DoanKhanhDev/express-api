@@ -37,13 +37,15 @@ export default new (class Connection implements ConnectionInterface {
   }
 
   public isInitialized(): Boolean {
-    return this.dataSource?.isInitialized ?? false;
+    return this.dataSource?.isInitialized;
   }
 
   protected doInitialize(): void {
     this.dataSource
       .initialize()
-      .then(() => console.log("Connected"))
+      .then(() => {
+        console.log("Initialized");
+      })
       .catch((error) => console.log(error));
   }
 })();

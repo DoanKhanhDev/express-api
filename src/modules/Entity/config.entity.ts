@@ -1,10 +1,13 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Photo {
+export class config {
   @PrimaryGeneratedColumn()
   id: number = 0;
 
-  @Column()
-  name: string = '';
+  @Column("varchar", { length: 20 })
+  key?: string;
+
+  @Column("simple-array")
+  value?: string[];
 }

@@ -17,6 +17,7 @@
     "typescript": "^5.4.4"
   },
   "dependencies": {
+    "api-response-format": "^1.2.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "class-validator": "^0.14.1",

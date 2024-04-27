@@ -4,20 +4,21 @@ import Connection from "../Connection/Connection";
 /**
  * The Entity type manager interface.
  */
-interface EntityTypeManager {
+export interface EntityTypeManagerInteface {
 
   /**
    * Get entity type manager from entity manager.
+   * @param {string} name
    *
    * @returns The entity manager type based from entity manager.
    */
-  getStorage(): Repository<ObjectLiteral> | null;
+  getStorage(name: string): Repository<ObjectLiteral> | null;
 }
 
 /**
  * The entity type manager base from Datasource
  */
-export default new (class EntityTypeManager implements EntityTypeManager {
+export default new (class EntityTypeManager implements EntityTypeManagerInteface {
   /**
    * The entity type manager.
    */
@@ -33,4 +34,5 @@ export default new (class EntityTypeManager implements EntityTypeManager {
     }
     return this.connection.getRepository(name);
   }
+
 })();
