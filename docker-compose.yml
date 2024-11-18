@@ -3,17 +3,48 @@ version: "3"
 services:
   node:
     build:
-      context: ./.docker/services
-      dockerfile: ./node/Dockerfile
+      context: .
+      dockerfile: ./.docker/services/node/Dockerfile
     working_dir: /var/www/app
+    command: 'bash -c ./.docker/services/node/entrypoint.sh'
     ports:
       - 8000:8000
+      - 9229:9229  # For Node.js debugging
     volumes:
       - .:/var/www/app
-    command: [/bin/bash, ./.docker/services/node/command.sh]
+      - /var/www/app/node_modules
+    environment:
+      - DATABASE_URL=mysql://sandbox_user:passsword@db:3306/sanbox
+      - NODE_ENV=development
     tty: true
     networks:
       - node_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: mysqld
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sanbox
+      MYSQL_USER: sandbox_user
+      MYSQL_PASSWORD: password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - '3306:3306'
+    volumes:
+      - './.docker/services/db/my.cnf:/etc/mysql/conf.d/my.cnf'
+      - './.docker/services/db/sql:/docker-entrypoint-initdb.d'
+      - mysql_data:/var/lib/mysql
+    networks:
+      - node_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   nginx:
     build:
@@ -32,23 +63,8 @@ services:
     networks:
       - node_network
 
-  db:
-    image: mysql:8.0
-    restart: unless-stopped
-    command: mysqld --default-authentication-plugin=caching_sha2_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: sanbox
-      MYSQL_USER: sandbox_user
-      MYSQL_PASSWORD: passsword
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    ports:
-      - '3306:3306'
-    volumes:
-      - './.docker/services/db/data:/var/lib/mysql'
-      - './.docker/services/db/my.cnf:/etc/mysql/conf.d/my.cnf'
-      - './.docker/services/db/sql:/docker-entrypoint-initdb.d'
-    networks:
-      - node_network
 networks:
   node_network:
+
+volumes:
+  mysql_data:

@@ -1,28 +1,22 @@
-import dotenv from "dotenv";
-import path from "path";
-import express, { Application, Request, Response } from "express";
-import EntityTypeManager from "./modules/Entity/EntityTypeManager";
-import Connection from "./modules/Connection/Connection";
-import ConfigFactory from "./modules/Config/ConfigFactory";
-import { config } from "./modules/Entity/config.entity";
-
-//For env File
-dotenv.config({
-  path: path.resolve(path.resolve(__dirname + "/../.env")),
-});
+import express, { Application } from "express";
+import { ConfigRoutes } from "./api/ConfigRoutes";
+import { CommonRoutesConfig } from "./api/CommonRoutesConfig";
+import MysqlConnection from "./modules/Connection/Mysql";
+import bodyParser from "body-parser";
 
 const app: Application = express();
 const port = process.env.PORT || 8000;
+const routes: Array<CommonRoutesConfig> = [];
 
-app.get("/", async (req: Request, res: Response) => {
-  await ConfigFactory.set("test_key_insert", ["a", "b"]);
-  let configTest: any = await ConfigFactory.get("test_key_insert");
-  res.json({
-    config: configTest,
-    isConnected: Connection.isInitialized(),
-  });
+app.use(bodyParser.json());
+
+MysqlConnection.isConnected().then((isConnected) => {
+  if (isConnected) {
+    console.log("Connected to the MySQL database");
+    routes.push(new ConfigRoutes(app));
+  }
 });
 
 app.listen(port, () => {
-  console.log(`Server is Fire at http://${process.env.DOMAIN}`);
+  console.log(`Server is Fire at https://${process.env.DOMAIN}`);
 });

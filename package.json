@@ -4,19 +4,25 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "NODE_PATH=./build node build/index.js",
-    "dev": "nodemon src/index.ts"
+    "start": "node build/index.js",
+    "build": "tsc",
+    "dev": "nodemon --config nodemon.json src/index.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate-deploy": "prisma migrate deploy",
+    "prisma:migrate-dev": "prisma migrate dev --name init",
+    "prisma:studio": "prisma studio"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.5",
     "express": "^4.19.2",
+    "nodemon": "^3.1.7",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.4"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "api-response-format": "^1.2.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -26,7 +32,6 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.20"
+    "prettier": "^3.3.3"
   }
 }
