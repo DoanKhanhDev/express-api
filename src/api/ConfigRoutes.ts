@@ -1,6 +1,6 @@
 import { CommonRoutesConfig } from "./CommonRoutesConfig";
 import express from "express";
-import MysqlConnection from "../modules/Connection/Mysql";
+import ConfigController from "../controller/ConfigController";
 
 export class ConfigRoutes extends CommonRoutesConfig {
   constructor(app: express.Application) {
@@ -9,77 +9,31 @@ export class ConfigRoutes extends CommonRoutesConfig {
 
   configureRoutes() {
     this.app.route(`/config`)
-      .get(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          const data = await prisma.config.findMany();
-          res.status(200).json(data);
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while fetching configs" });
-        }
+      .get((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.getAll();
       })
-      .post(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          const newConfig = await prisma.config.create({
-            data: req.body,
-          });
-          res.status(200).json(newConfig);
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while updating the config" });
-        }
+      .post((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.create(req.body);
       });
 
     this.app.route(`/config/:configId`)
-      .get(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          const config = await prisma.config.findUnique({
-            where: { id: parseInt(req.params.configId) }
-          });
-          if (config) {
-            res.status(200).json(config);
-          } else {
-            res.status(404).json({ error: "Config not found" });
-          }
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while fetching the config" });
-        }
+      .get((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.get(parseInt(req.params.configId));
       })
-      .put(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          const updatedConfig = await prisma.config.update({
-            where: { id: parseInt(req.params.configId) },
-            data: req.body
-          });
-          res.status(200).json(updatedConfig);
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while updating the config" });
-        }
+      .put((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.update(parseInt(req.params.configId), req.body);
       })
-      .patch(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          const updatedConfig = await prisma.config.update({
-            where: { id: parseInt(req.params.configId) },
-            data: req.body
-          });
-          res.status(200).json(updatedConfig);
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while patching the config" });
-        }
+      .patch((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.update(parseInt(req.params.configId), req.body);
       })
-      .delete(async (req: express.Request, res: express.Response) => {
-        try {
-          const prisma = MysqlConnection.getClient();
-          await prisma.config.delete({
-            where: { id: parseInt(req.params.configId) }
-          });
-          res.status(200).json({ message: "Config deleted successfully" });
-        } catch (error) {
-          res.status(500).json({ error: "An error occurred while deleting the config" });
-        }
+      .delete((req: express.Request, res: express.Response) => {
+        const configController = new ConfigController(req, res);
+        configController.delete(parseInt(req.params.configId));
       });
 
     return this.app;
