@@ -10,7 +10,7 @@ class ConfigController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching configs",
+        message: "An error occurred while fetching configs",
       });
     }
   }
@@ -25,7 +25,7 @@ class ConfigController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching config",
+        message: "An error occurred while fetching config",
       });
     }
   }
@@ -40,7 +40,7 @@ class ConfigController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while updating config",
+        message: "An error occurred while updating config",
       });
     }
   }
@@ -54,7 +54,7 @@ class ConfigController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while creating config",
+        message: "An error occurred while creating config",
       });
     }
   }
@@ -68,7 +68,7 @@ class ConfigController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while deleting config",
+        message: "An error occurred while deleting config",
       });
     }
   }

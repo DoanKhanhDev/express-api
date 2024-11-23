@@ -10,7 +10,7 @@ class UserController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching users",
+        message: "An error occurred while fetching users",
       });
     }
   }
@@ -25,7 +25,7 @@ class UserController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching user",
+        message: "An error occurred while fetching user",
       });
     }
   }
@@ -41,7 +41,7 @@ class UserController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while updating user",
+        message: "An error occurred while updating user",
       });
     }
   }
@@ -56,7 +56,7 @@ class UserController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while creating user",
+        message: "An error occurred while creating user",
       });
     }
   }
@@ -71,7 +71,7 @@ class UserController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while deleting user",
+        message: "An error occurred while deleting user",
       });
     }
   }

@@ -10,7 +10,7 @@ class RoleController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching roles",
+        message: "An error occurred while fetching roles",
       });
     }
   }
@@ -25,7 +25,7 @@ class RoleController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while fetching role",
+        message: "An error occurred while fetching role",
       });
     }
   }
@@ -41,7 +41,7 @@ class RoleController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while updating role",
+        message: "An error occurred while updating role",
       });
     }
   }
@@ -56,7 +56,7 @@ class RoleController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while creating role",
+        message: "An error occurred while creating role",
       });
     }
   }
@@ -71,7 +71,7 @@ class RoleController extends ControllerBase {
     } catch (error) {
       this.res.status(500).json({
         code: (error as any).code,
-        error: "An error occurred while deleting role",
+        message: "An error occurred while deleting role",
       });
     }
   }
