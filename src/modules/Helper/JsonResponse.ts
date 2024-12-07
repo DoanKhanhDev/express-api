@@ -26,6 +26,11 @@ class JsonResponse {
       return this;
   }
 
+  setMessage(message: string): this {
+      this.message = message;
+      return this;
+  }
+
   setData(data: any): this {
       this.data = data;
       return this;

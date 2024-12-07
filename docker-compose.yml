@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./.docker/services/node/Dockerfile
     working_dir: /var/www/app
-    command: 'bash -c ./.docker/services/node/entrypoint.sh'
+    command: sh ./.docker/services/node/entrypoint.sh
     ports:
       - 8000:8000
       - 9229:9229  # For Node.js debugging
@@ -14,11 +14,16 @@ services:
     environment:
       - DATABASE_URL=mysql://sandbox_user:passsword@db:3306/sanbox
       - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
     tty: true
     networks:
       - node_network
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   db:
@@ -48,7 +53,6 @@ services:
     build:
       context: ./.docker/services/
       dockerfile: ./nginx/build/Dockerfile
-    command: [/bin/bash, .docker/services/nginx/build/command.sh]
     ports:
       - "80:80"
       - "443:443"
@@ -61,8 +65,24 @@ services:
     networks:
       - node_network
 
+  redis:
+    image: redis:7.2-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-password}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - node_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 networks:
   node_network:
 
 volumes:
   mysql_data:
+  redis_data:

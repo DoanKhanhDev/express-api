@@ -1,9 +1,8 @@
 #!/bin/sh
+set -e
 
-# Sync schemes files.
-echo "Running sync scheme files.."
+echo "🔄 Running database migrations..."
 npm run prisma:migrate-dev
 
-# Start application.
-echo "Starting application.."
+echo "🚀 Starting application..."
 npm run dev
