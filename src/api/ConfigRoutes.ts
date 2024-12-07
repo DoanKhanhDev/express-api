@@ -1,40 +1,23 @@
-import { CommonRoutesConfig } from "./CommonRoutesConfig";
-import express from "express";
-import ConfigController from "../controller/ConfigController";
+import express from 'express';
+import { BaseRoutes } from './BaseRoutes';
+import { ConfigController } from '../controllers/ConfigController';
 
-export class ConfigRoutes extends CommonRoutesConfig {
-  constructor(app: express.Application) {
-    super(app, "ConfigRoutes");
+export class ConfigRoutes extends BaseRoutes {
+  constructor(app: express.Application | express.Router) {
+    super(app, 'ConfigRoutes');
   }
 
-  configureRoutes() {
-    this.app.route(`/config`)
-      .get((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.getAll();
-      })
-      .post((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.create(req.body);
-      });
+  configureRoutes(): express.Application | express.Router {
+    const controller = (req: express.Request, res: express.Response) => new ConfigController(req, res);
 
-    this.app.route(`/config/:configId`)
-      .get((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.get(parseInt(req.params.configId));
-      })
-      .put((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.update(parseInt(req.params.configId), req.body);
-      })
-      .patch((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.update(parseInt(req.params.configId), req.body);
-      })
-      .delete((req: express.Request, res: express.Response) => {
-        const configController = new ConfigController(req, res);
-        configController.delete(parseInt(req.params.configId));
-      });
+    this.app.route('/configs')
+      .get((req, res) => controller(req, res).getAll())
+      .post((req, res) => controller(req, res).create(req.body));
+
+    this.app.route('/configs/:configId')
+      .get((req, res) => controller(req, res).get(Number(req.params.configId)))
+      .put((req, res) => controller(req, res).update(Number(req.params.configId), req.body))
+      .delete((req, res) => controller(req, res).delete(Number(req.params.configId)));
 
     return this.app;
   }

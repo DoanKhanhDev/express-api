@@ -1,40 +1,23 @@
-import { CommonRoutesConfig } from "./CommonRoutesConfig";
-import express from "express";
-import RoleController from "../controller/RoleController";
+import express from 'express';
+import { BaseRoutes } from './BaseRoutes';
+import { RoleController } from '../controllers/RoleController';
 
-export class RoleRoutes extends CommonRoutesConfig {
-  constructor(app: express.Application) {
-    super(app, "RoleRoutes");
+export class RoleRoutes extends BaseRoutes {
+  constructor(app: express.Application  | express.Router) {
+    super(app, 'RoleRoutes');
   }
 
-  configureRoutes() {
-    this.app.route(`/role`)
-      .get((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.getAll();
-      })
-      .post((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.create(req.body);
-      });
+  configureRoutes(): express.Application | express.Router {
+    const controller = (req: express.Request, res: express.Response) => new RoleController(req, res);
 
-    this.app.route(`/role/:userId`)
-      .get((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.get(parseInt(req.params.userId));
-      })
-      .put((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.update(parseInt(req.params.userId), req.body);
-      })
-      .patch((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.update(parseInt(req.params.userId), req.body);
-      })
-      .delete((req: express.Request, res: express.Response) => {
-        const roleController = new RoleController(req, res);
-        roleController.delete(parseInt(req.params.userId));
-      });
+    this.app.route('/roles')
+      .get((req, res) => controller(req, res).getAll())
+      .post((req, res) => controller(req, res).create(req.body));
+
+    this.app.route('/roles/:roleId')
+      .get((req, res) => controller(req, res).get(Number(req.params.roleId)))
+      .put((req, res) => controller(req, res).update(Number(req.params.roleId), req.body))
+      .delete((req, res) => controller(req, res).delete(Number(req.params.roleId)));
 
     return this.app;
   }

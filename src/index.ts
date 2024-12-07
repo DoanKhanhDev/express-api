@@ -1,26 +1,33 @@
-import express, { Application } from "express";
-import { ConfigRoutes } from "./api/ConfigRoutes";
-import { UserRoutes } from "./api/UserRoutes";
-import { CommonRoutesConfig } from "./api/CommonRoutesConfig";
-import MysqlConnection from "./modules/Connection/Mysql";
-import bodyParser from "body-parser";
-import { RoleRoutes } from "./api/RoleRoutes";
+import express from 'express';
+import * as dotenv from 'dotenv';
+import { RouteRegistry } from './api/RouteRegistry';
+import Mysql from './modules/Connection/Mysql';
 
-const app: Application = express();
+dotenv.config();
+
+const app: express.Application = express();
 const port = process.env.PORT || 8000;
-const routes: Array<CommonRoutesConfig> = [];
 
-app.use(bodyParser.json());
+// Middleware
+app.use(express.json());
 
-MysqlConnection.isConnected().then((isConnected) => {
-  if (isConnected) {
-    console.log("Connected to the MySQL database");
-    routes.push(new ConfigRoutes(app));
-    routes.push(new UserRoutes(app));
-    routes.push(new RoleRoutes(app));
-  }
+// Database connection
+Mysql.isConnected();
+
+// Routes registration
+const routeRegistry = new RouteRegistry(app);
+const routes = routeRegistry.registerRoutes();
+
+// Server startup
+app.listen(port, () => {
+  routes.forEach(route => {
+    console.log(`Routes configured for ${route.name}`);
+  });
+  console.log(`Server running at https://${process.env.DOMAIN}`);
 });
 
-app.listen(port, () => {
-  console.log(`Server is Fire at https://${process.env.DOMAIN}`);
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  await Mysql.disconnect();
+  process.exit(0);
 });
