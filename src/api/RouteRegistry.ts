@@ -3,13 +3,14 @@ import { BaseRoutes } from './BaseRoutes';
 import { UserRoutes } from './UserRoutes';
 import { RoleRoutes } from './RoleRoutes';
 import { ConfigRoutes } from './ConfigRoutes';
+import { AuthRoutes } from './AuthRoutes';
 
 export class RouteRegistry {
   private routes: Map<string, Array<BaseRoutes>> = new Map();
   private apiRouters: Map<string, express.Router> = new Map();
 
   constructor(private app: express.Application) {
-    this.initializeVersions(['v1', 'v2']);
+    this.initializeVersions(['v1']);
   }
 
   private initializeVersions(versions: string[]) {
@@ -29,6 +30,7 @@ export class RouteRegistry {
       new UserRoutes(router),
       new RoleRoutes(router),
       new ConfigRoutes(router),
+      new AuthRoutes(router)
     ];
 
     this.routes.set('v1', v1Routes);

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import Mysql from '../modules/Connection/Mysql';
 import { CacheService } from './CacheService';
+import { systemErrorLogger } from '../modules/Logger/SystemErrorLogger';
 
 export class ConfigService {
   private prisma: PrismaClient;
@@ -12,13 +13,17 @@ export class ConfigService {
   }
 
   async findAll() {
-    const cached = await this.cache.get<any[]>('all');
-    if (cached) return cached;
+    try {
+      const cached = await this.cache.get<any[]>('all');
+      if (cached) return cached;
 
-    const configs = await this.prisma.config.findMany();
-    await this.cache.set('all', configs);
-
-    return configs;
+      const configs = await this.prisma.config.findMany();
+      await this.cache.set('all', configs);
+      return configs;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'ConfigService.findAll');
+      throw error;
+    }
   }
 
   async findById(id: number) {

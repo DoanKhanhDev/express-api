@@ -1,5 +1,6 @@
 import { createClient } from 'redis';
 import * as dotenv from 'dotenv';
+import { logService, LogType } from '../Logger/LogService';
 
 dotenv.config();
 
@@ -11,8 +12,17 @@ class Redis {
       url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
     });
 
-    this.client.on('error', (err) => console.error('Redis Client Error', err));
-    this.client.on('connect', () => console.log('Redis Client Connected'));
+    this.client.on('error', async (err) => {
+      await logService.error(`Redis Client Error: ${err}`, LogType.REDIS);
+    });
+
+    this.client.on('connect', async () => {
+      await logService.info('Redis Client Connected', LogType.REDIS);
+    });
+  }
+
+  public getClient() {
+    return this.client;
   }
 
   async connect() {

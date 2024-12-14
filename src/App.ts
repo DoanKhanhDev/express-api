@@ -4,6 +4,9 @@ import { RouteRegistry } from './api/RouteRegistry';
 import Mysql from './modules/Connection/Mysql';
 import Redis from './modules/Connection/Redis';
 import { notFoundHandler } from './middleware/NotFoundMiddleware';
+import { cronService } from './modules/Cron/CronService';
+import { systemErrorLogger } from './modules/Logger/SystemErrorLogger';
+import { logService, LogType } from './modules/Logger/LogService';
 
 export class App {
   private app: express.Application;
@@ -23,6 +26,10 @@ export class App {
 
   private initializeShutdown() {
     process.on('SIGTERM', async () => {
+      await systemErrorLogger.logError(
+        new Error('Application shutdown initiated'),
+        'Shutdown'
+      );
       await Promise.all([
         Mysql.disconnect(),
         Redis.disconnect()
@@ -38,6 +45,9 @@ export class App {
         Redis.connect()
       ]);
 
+      // Initialize cron jobs
+      cronService.initializeCrons();
+
       const routeRegistry = new RouteRegistry(this.app);
       const routes = routeRegistry.registerRoutes();
 
@@ -45,12 +55,12 @@ export class App {
 
       this.app.listen(this.port, () => {
         routes.forEach(route => {
-          console.log(`Routes configured for ${route.name}`);
+          logService.info(`Routes configured for ${route.name}`, LogType.SYSTEM);
         });
-        console.log(`Server running at https://${process.env.DOMAIN}`);
+        logService.info(`Server running at https://${process.env.DOMAIN}`, LogType.SYSTEM);
       });
     } catch (error) {
-      console.error('Failed to start server:', error);
+      await systemErrorLogger.logError(error, 'Bootstrap');
       process.exit(1);
     }
   }

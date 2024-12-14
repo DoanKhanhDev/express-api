@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import Mysql from '../modules/Connection/Mysql';
 import { CacheService } from './CacheService';
+import { systemErrorLogger } from '../modules/Logger/SystemErrorLogger';
 
 export class UserService {
   private prisma: PrismaClient;
@@ -12,67 +13,91 @@ export class UserService {
   }
 
   async findAll() {
-    // Try cache first
-    const cached = await this.cache.get<any[]>('all');
-    if (cached) return cached;
+    try {
+      const cached = await this.cache.get<any[]>('all');
+      if (cached) return cached;
 
-    // Get from database
-    const users = await this.prisma.user.findMany();
-
-    // Cache result
-    await this.cache.set('all', users);
-
-    return users;
+      const users = await this.prisma.user.findMany();
+      await this.cache.set('all', users);
+      return users;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.findAll');
+      throw error;
+    }
   }
 
   async findById(id: number) {
-    // Try cache first
-    const cached = await this.cache.get<any>(`${id}`);
-    if (cached) return cached;
+    try {
+      const cached = await this.cache.get<any>(`${id}`);
+      if (cached) return cached;
 
-    // Get from database
-    const user = await this.prisma.user.findUnique({
-      where: { id }
-    });
-
-    if (user) {
-      // Cache result
-      await this.cache.set(`${id}`, user);
+      const user = await this.prisma.user.findUnique({ where: { id } });
+      if (user) {
+        await this.cache.set(`${id}`, user);
+      }
+      return user;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.findById');
+      throw error;
     }
-
-    return user;
   }
 
   async create(data: any) {
-    const user = await this.prisma.user.create({ data });
-    // Invalidate cache
-    await this.cache.delete('all');
-    return user;
+    try {
+      const user = await this.prisma.user.create({ data });
+      await this.cache.delete('all');
+      return user;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.create');
+      throw error;
+    }
   }
 
   async update(id: number, data: any) {
-    const user = await this.prisma.user.update({
-      where: { id },
-      data
-    });
-    // Invalidate caches
-    await Promise.all([
-      this.cache.delete('all'),
-      this.cache.delete(`${id}`)
-    ]);
-    return user;
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data
+      });
+      await Promise.all([
+        this.cache.delete('all'),
+        this.cache.delete(`${id}`)
+      ]);
+      return user;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.update');
+      throw error;
+    }
   }
 
   async delete(id: number) {
-    const result = await this.prisma.user.delete({
-      where: { id }
-    });
-    // Invalidate caches
-    await Promise.all([
-      this.cache.delete('all'),
-      this.cache.delete(`${id}`)
-    ]);
-    return result;
+    try {
+      const result = await this.prisma.user.delete({ where: { id } });
+      await Promise.all([
+        this.cache.delete('all'),
+        this.cache.delete(`${id}`)
+      ]);
+      return result;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.delete');
+      throw error;
+    }
+  }
+
+  async findByUid(uid: string) {
+    try {
+      const cached = await this.cache.get<any>(`uid:${uid}`);
+      if (cached) return cached;
+
+      const user = await this.prisma.user.findUnique({ where: { uid } });
+      if (user) {
+        await this.cache.set(`uid:${uid}`, user);
+      }
+      return user;
+    } catch (error) {
+      await systemErrorLogger.logError(error, 'UserService.findByUid');
+      throw error;
+    }
   }
 }
 
